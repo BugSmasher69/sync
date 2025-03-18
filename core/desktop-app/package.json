@@ -1,0 +1,55 @@
+{
+  "name": "clipboard-sync-desktop",
+  "version": "1.0.0",
+  "description": "End-to-end encrypted clipboard sync for Windows",
+  "main": "electron.js",
+  "scripts": {
+    "start": "concurrently \"cross-env BROWSER=none npm run start-react\" \"wait-on http://localhost:3000 && electron .\"",
+    "start-react": "react-scripts start",
+    "build": "react-scripts build",
+    "build-electron": "electron-builder",
+    "pack": "npm run build && npm run build-electron"
+  },
+  "build": {
+    "appId": "com.clipboard-sync.desktop",
+    "productName": "Clipboard Sync",
+    "files": [
+      "build/**/*",
+      "electron.js",
+      "package.json",
+      "assets/**/*"
+    ],
+    "directories": {
+      "buildResources": "assets"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.png"
+    }
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.38.0",
+    "clipboardy": "^3.0.0",
+    "crypto-js": "^4.1.1",
+    "date-fns": "^2.30.0",
+    "electron-store": "^8.1.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.1",
+    "cross-env": "^7.0.3",
+    "electron": "^26.3.0",
+    "electron-builder": "^24.6.4",
+    "react-scripts": "5.0.1",
+    "wait-on": "^7.0.1"
+  },
+  "browserslist": {
+    "production": [
+      "last 1 electron version"
+    ],
+    "development": [
+      "last 1 electron version"
+    ]
+  }
+}
