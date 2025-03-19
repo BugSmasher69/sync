@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
-import { encryptData, generateEncryptionKey } from '../../shared/encryption';
+import { encryptData, generateEncryptionKey } from './shared/encryption';
 import { 
   Header, Footer, Tabs, TabContent, TextInput, LinkInput, 
   FileUpload, ClipboardHistory, LoginForm, ToastContainer 

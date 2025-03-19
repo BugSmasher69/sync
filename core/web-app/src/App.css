@@ -1,4 +1,4 @@
-@import '../../shared/designTokens.js';
+@import './shared/designTokens.css';
 
 :root {
     /* Dark theme (default) */

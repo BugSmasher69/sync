@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { ipcRenderer } from 'electron';
 import { createClient } from '@supabase/supabase-js';
 import {
   Container, Sidebar, SidebarSection, SidebarItem, Content, Header, 
@@ -7,6 +6,7 @@ import {
   MainContent, ClipboardGrid, ClipboardItem, ToastContainer
 } from './components';
 import { encryptData, generateEncryptionKey } from './shared/encryption';
+import { getContentPreview } from './utils';
 import './App.css';
 
 // Supabase configuration
@@ -38,7 +38,7 @@ const App = () => {
           setEncryptionKey(storedKey);
           
           // Send user details to main process
-          ipcRenderer.send('set-user-details', {
+          window.api.setUserDetails({
             user_id: session.user.id,
             key: storedKey
           });
@@ -46,7 +46,6 @@ const App = () => {
           // Load clipboard history
           loadClipboardHistory();
         } else {
-          // Handle first-time setup or key retrieval
           showToast('warning', 'Encryption Key Required', 'Please set up your encryption key');
         }
       }
@@ -55,9 +54,9 @@ const App = () => {
     checkSession();
     
     // Listen for clipboard updates from main process
-    ipcRenderer.on('clipboard-updated', handleClipboardUpdate);
+    window.api.onClipboardUpdated((event, newItem) => handleClipboardUpdate(event, newItem));
     
-    ipcRenderer.on('sync-status-changed', (event, status) => {
+    window.api.onSyncStatusChanged((event, status) => {
       setSyncing(status);
       showToast(
         status ? 'success' : 'warning', 
@@ -65,10 +64,9 @@ const App = () => {
         status ? 'Clipboard sync is now active' : 'Clipboard sync has been paused'
       );
     });
-    
+
     return () => {
-      ipcRenderer.removeAllListeners('clipboard-updated');
-      ipcRenderer.removeAllListeners('sync-status-changed');
+      // Remove listeners if necessary
     };
   }, []);
   
@@ -149,21 +147,6 @@ const App = () => {
     }
   };
   
-  const getContentPreview = (item, key) => {
-    try {
-      if (item.content_type === 'file') {
-        const decrypted = JSON.parse(decryptData(item.content, key));
-        return `File: ${decrypted.name || 'Unknown'}`;
-      } else {
-        const decrypted = decryptData(item.content, key);
-        return typeof decrypted === 'string' ? decrypted.substring(0, 150) : String(decrypted);
-      }
-    } catch (err) {
-      console.error('Error decrypting content:', err);
-      return '[Encrypted Content]';
-    }
-  };
-  
   const copyToClipboard = (itemId) => {
     // Find the item
     const item = clipboardItems.find(i => i.id === itemId);
@@ -173,7 +156,7 @@ const App = () => {
     showToast('info', 'Copying', 'Copying to clipboard...');
     
     // Send to main process to update system clipboard
-    ipcRenderer.send('copy-to-clipboard', item.content_preview);
+    window.api.copyToClipboard(item.content_preview);
     
     // Show success toast
     setTimeout(() => {
@@ -201,7 +184,7 @@ const App = () => {
   };
   
   const toggleSyncStatus = () => {
-    ipcRenderer.send('toggle-sync');
+    window.api.toggleSync();
   };
   
   const clearHistory = async () => {

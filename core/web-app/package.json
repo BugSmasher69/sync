@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Web interface for clipboard sync application",
   "scripts": {
-    "start": "react-scripts start",
+    "start": "cross-env FAST_REFRESH=false react-scripts --max_old_space_size=4096 start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -20,7 +20,8 @@
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^14.0.0",
-    "@testing-library/user-event": "^14.4.3"
+    "@testing-library/user-event": "^14.4.3",
+    "cross-env": "^7.0.3"
   },
   "browserslist": {
     "production": [
