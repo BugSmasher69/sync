@@ -6,7 +6,7 @@ import {
   SearchBar, HeaderButton, EmptyState, ThreeDotMenu, SectionHeader, ViewOptions, 
   MainContent, ClipboardGrid, ClipboardItem, ToastContainer
 } from './components';
-import { encryptData, decryptData } from '../../shared/encryption';
+import { encryptData, generateEncryptionKey } from './shared/encryption';
 import './App.css';
 
 // Supabase configuration

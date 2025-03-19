@@ -1,4 +1,4 @@
-@import '../../../shared/designTokens.js';
+@import './shared/designTokens.css';
 
 :root {
     /* Dark theme (default) */
@@ -388,7 +388,7 @@ textarea {
     border-radius: var(--borders-radius-xl);
     padding: var(--spacing-4);
     position: relative;
-    transition: transform var(--animations-durations-fast) var(--animations-timingFunctions-easeOut),
+    transition: transform var(--animations-durations-fast) var (--animations-timingFunctions-easeOut),
         box-shadow var(--animations-durations-fast) var(--animations-timingFunctions-easeOut);
     -webkit-app-region: no-drag;
     cursor: pointer;
@@ -529,7 +529,7 @@ textarea {
 .empty-state-message {
     font-size: var(--typography-fontSizes-base);
     margin-bottom: var(--spacing-2);
-    color: var(--text-secondary);
+    color: var (--text-secondary);
     font-weight: var(--typography-fontWeights-medium);
 }
 
