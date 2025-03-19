@@ -1,1 +1,0 @@
-// Clipboard management logic for handling clipboard events and data.
