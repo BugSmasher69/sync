@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClipSync Settings</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: #f5f5f7;
+      color: #333;
+      margin: 0;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: white;
+      border-radius: 10px;
+      padding: 30px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    h1 {
+      font-size: 24px;
+      margin-top: 0;
+      margin-bottom: 20px;
+      color: #333;
+    }
+    
+    h2 {
+      font-size: 18px;
+      margin-top: 30px;
+      margin-bottom: 15px;
+      color: #333;
+    }
+    
+    .card {
+      background-color: #f8f8f8;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+    
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+    
+    button {
+      background-color: #0078ff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 15px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    
+    button:hover {
+      background-color: #0066d6;
+    }
+    
+    button.secondary {
+      background-color: #6c757d;
+    }
+    
+    button.secondary:hover {
+      background-color: #5a6268;
+    }
+    
+    .button-group {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .qr-code {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    
+    .history-container {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    
+    .history-item {
+      padding: 10px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .history-item:last-child {
+      border-bottom: none;
+    }
+    
+    .history-content {
+      font-size: 14px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .history-meta {
+      font-size: 12px;
+      color: #666;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>ClipSync Settings</h1>
+    
+    <div id="setup-container">
+      <div class="card">
+        <h2>Device Pairing</h2>
+        <div id="pairing-form">
+          <div id="existing-pair" style="display: none;">
+            <p>Your device is paired with code: <strong id="pair-id-display"></strong></p>
+            <button id="reset-pair">Reset Pairing</button>
+          </div>
+          
+          <div id="new-pair">
+            <p>Create a new pairing or enter an existing code to connect your devices.</p>
+            
+            <div class="button-group">
+              <button id="generate-pair">Generate New Pair</button>
+              <button id="use-existing" class="secondary">Use Existing Pair</button>
+            </div>
+          </div>
+          
+          <div id="enter-existing-pair" style="display: none;">
+            <label for="pair-id">Pair ID</label>
+            <input type="text" id="pair-id" placeholder="Enter pair ID">
+            
+            <label for="pair-name">Pair Name</label>
+            <input type="text" id="pair-name" placeholder="Enter a name for this pair">
+            
+            <label for="encryption-key">Encryption Key</label>
+            <input type="password" id="encryption-key" placeholder="Enter encryption key">
+            
+            <div class="button-group">
+              <button id="save-existing-pair">Save</button>
+              <button id="cancel-existing-pair" class="secondary">Cancel</button>
+            </div>
+          </div>
+          
+          <div id="pair-result" style="display: none;">
+            <p>Share these details with your other devices to establish the connection:</p>
+            <div class="card">
+              <p><strong>Pair ID:</strong> <span id="result-pair-id"></span></p>
+              <p><strong>Encryption Key:</strong> <span id="result-encryption-key"></span></p>
+            </div>
+            <p>Warning: Save this information securely. You'll need it to connect other devices.</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card">
+        <h2>Supabase Configuration</h2>
+        <div id="supabase-form">
+          <label for="supabase-url">Supabase URL</label>
+          <input type="text" id="supabase-url" placeholder="https://your-project.supabase.co">
+          
+          <label for="supabase-key">Supabase Anon Key</label>
+          <input type="password" id="supabase-key" placeholder="your-anon-key">
+          
+          <button id="save-supabase">Save Configuration</button>
+        </div>
+      </div>
+    </div>
+    
+    <h2>Clipboard History</h2>
+    <div class="card">
+      <div id="history-container" class="history-container">
+        <!-- History items will be loaded here -->
+        <p id="history-empty">No clipboard history found. Sync your first item!</p>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Get initial data
+      const pairData = await window.electronAPI.getPair();
+      
+      const pairIdDisplay = document.getElementById('pair-id-display');
+      const existingPairDiv = document.getElementById('existing-pair');
+      const newPairDiv = document.getElementById('new-pair');
+      
+      // Check if we have an existing pair
+      if (pairData && pairData.pairId) {
+        pairIdDisplay.textContent = pairData.pairId;
+        existingPairDiv.style.display = 'block';
+        newPairDiv.style.display = 'none';
+        
+        // Load clipboard history
+        loadClipboardHistory();
+      }
+      
+      // Generate New Pair button
+      document.getElementById('generate-pair').addEventListener('click', async () => {
+        const result = await window.electronAPI.generatePair();
+        
+        document.getElementById('result-pair-id').textContent = result.pairId;
+        document.getElementById('result-encryption-key').textContent = result.encryptionKey;
+        document.getElementById('pair-result').style.display = 'block';
+        newPairDiv.style.display = 'none';
+        
+        // Refresh to update UI
+        setTimeout(() => {
+          window.location.reload();
+        }, 3000);
+      });
+      
+      // Use Existing Pair button
+      document.getElementById('use-existing').addEventListener('click', () => {
+        newPairDiv.style.display = 'none';
+        document.getElementById('enter-existing-pair').style.display = 'block';
+      });
+      
+      // Cancel button for existing pair form
+      document.getElementById('cancel-existing-pair').addEventListener('click', () => {
+        document.getElementById('enter-existing-pair').style.display = 'none';
+        newPairDiv.style.display = 'block';
+      });
+      
+      // Save Existing Pair button
+      document.getElementById('save-existing-pair').addEventListener('click', async () => {
+        const pairId = document.getElementById('pair-id').value;
+        const pairName = document.getElementById('pair-name').value;
+        const encryptionKey = document.getElementById('encryption-key').value;
+        
+        if (!pairId || !pairName || !encryptionKey) {
+          alert('Please fill in all fields');
+          return;
+        }
+        
+        await window.electronAPI.savePair(pairId, pairName, encryptionKey);
+        
+        // Refresh to update UI
+        window.location.reload();
+      });
+      
+      // Reset Pairing button
+      document.getElementById('reset-pair').addEventListener('click', () => {
+        if (confirm('Are you sure you want to reset the device pairing? This will disconnect from all synced devices.')) {
+          // Reset by saving empty values
+          window.electronAPI.savePair('', '', '');
+          window.location.reload();
+        }
+      });
+      
+      // Save Supabase Configuration button
+      document.getElementById('save-supabase').addEventListener('click', async () => {
+        const supabaseUrl = document.getElementById('supabase-url').value;
+        const supabaseKey = document.getElementById('supabase-key').value;
+        
+        if (!supabaseUrl || !supabaseKey) {
+          alert('Please fill in both Supabase URL and key');
+          return;
+        }
+        
+        await window.electronAPI.saveSupabaseConfig(supabaseUrl, supabaseKey);
+        alert('Supabase configuration saved successfully');
+      });
+      
+      // Load clipboard history
+      async function loadClipboardHistory() {
+        const historyContainer = document.getElementById('history-container');
+        const historyEmpty = document.getElementById('history-empty');
+        
+        try {
+          const history = await window.electronAPI.getClipboardHistory(10);
+          
+          if (history && history.length > 0) {
+            historyEmpty.style.display = 'none';
+            
+            // Clear existing content
+            historyContainer.innerHTML = '';
+            
+            // Add history items
+            history.forEach(item => {
+              const historyItem = document.createElement('div');
+              historyItem.className = 'history-item';
+              
+              const contentEl = document.createElement('div');
+              contentEl.className = 'history-content';
+              contentEl.textContent = item.decryptedContent.substring(0, 100) + 
+                (item.decryptedContent.length > 100 ? '...' : '');
+              
+              const metaEl = document.createElement('div');
+              metaEl.className = 'history-meta';
+              
+              const date = new Date(item.created_at);
+              metaEl.textContent = `${item.content_type} from ${item.source_device} - ${date.toLocaleString()}`;
+              
+              historyItem.appendChild(contentEl);
+              historyItem.appendChild(metaEl);
+              historyContainer.appendChild(historyItem);
+            });
+          }
+        } catch (error) {
+          console.error('Error loading clipboard history:', error);
+        }
+      }
+    });
+  </script>
+</body>
+</html>

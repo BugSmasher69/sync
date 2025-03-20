@@ -1,0 +1,60 @@
+{
+    "name": "clipboard-sync",
+    "version": "1.0.0",
+    "description": "Secure cross-device clipboard synchronization",
+    "main": "index.js",
+    "workspaces": [
+        "electron-app",
+        "web-app",
+        "shared"
+    ],
+    "scripts": {
+        "start:electron": "cd electron-app && npm start",
+        "start:web": "cd web-app && npm start",
+        "dev": "concurrently \"npm run start:electron\" \"npm run start:web\"",
+        "build": "npm run build --workspaces"
+    },
+    "keywords": [
+        "clipboard",
+        "sync",
+        "encryption",
+        "electron",
+        "react"
+    ],
+    "author": "",
+    "license": "MIT",
+    "devDependencies": {
+        "concurrently": "^8.2.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/BugSmasher69/sync.git"
+    },
+    "type": "commonjs",
+    "bugs": {
+        "url": "https://github.com/BugSmasher69/sync/issues"
+    },
+    "homepage": "https://github.com/BugSmasher69/sync#readme",
+    "dependencies": {
+        "@babel/plugin-transform-class-properties": "^7.25.9",
+        "@babel/plugin-transform-nullish-coalescing-operator": "^7.26.6",
+        "@babel/plugin-transform-numeric-separator": "^7.25.9",
+        "@babel/plugin-transform-optional-chaining": "^7.25.9",
+        "@babel/plugin-transform-private-methods": "^7.25.9",
+        "@babel/plugin-transform-private-property-in-object": "^7.25.9",
+        "@eslint/config-array": "^0.19.2",
+        "@eslint/object-schema": "^2.1.6",
+        "@jridgewell/sourcemap-codec": "^1.5.0",
+        "@rollup/plugin-terser": "^0.4.4",
+        "@svgr/plugin-svgo": "^8.1.0",
+        "@svgr/webpack": "^8.1.0",
+        "css-select": "^5.1.0",
+        "eslint": "^9.22.0",
+        "lru-cache": "^11.0.2",
+        "nth-check": "^2.1.1",
+        "postcss": "^8.5.3",
+        "resolve-url-loader": "^5.0.0",
+        "rimraf": "^6.0.1",
+        "svgo": "^2.8.0"
+    }
+}
